@@ -52,6 +52,11 @@ STACK_ENV_VARS="BASE_SQL_CONN DATA_DIR DEST ENABLED_SERVICES HOST_IP \
     LOGFILE OS_CACERT SERVICE_HOST STACK_USER TLS_IP \
     HOST_IPV6 SERVICE_IP_VERSION"
 
+# Conditionally source the ClearLinux support outside of any functions
+if [[ -x $(command -v swupd 2>/dev/null) ]]; then
+    # ClearLinux - load some substitute functions
+    source inc/clearlinux
+fi
 
 # Saves significant environment variables to .stackenv for later use
 # Refers to a lot of globals, only TOP_DIR and STACK_ENV_VARS are required to
@@ -323,6 +328,10 @@ function _ensure_lsb_release {
         # had "yum".  Keep this ordered above yum so we don't try to
         # install the rh package.  suse calls it just "lsb"
         sudo zypper -n install lsb
+    elif [[ -x $(command -v swupd 2>/dev/null) ]]; then
+        # Nothing to do here for ClearLinux, we source inc/clearlinux
+        # above outside of the function, but it has yum & dnf...
+        :
     elif [[ -x $(command -v dnf 2>/dev/null) ]]; then
         sudo dnf install -y redhat-lsb-core
     elif [[ -x $(command -v yum 2>/dev/null) ]]; then
@@ -390,6 +399,8 @@ function GetDistro {
         DISTRO="xs${os_RELEASE%.*}"
     elif [[ "$os_VENDOR" =~ (kvmibm) ]]; then
         DISTRO="${os_VENDOR}${os_RELEASE::1}"
+    elif [[ "$os_VENDOR" =~ (Clear_Linux_OS) ]]; then
+        DISTRO="${os_CODENAME}"
     else
         # We can't make a good choice here.  Setting a sensible DISTRO
         # is part of the problem, but not the major issue -- we really
@@ -419,6 +430,16 @@ function GetDistro {
 # is_arch arch-type
 function is_arch {
     [[ "$(uname -m)" == "$1" ]]
+}
+
+# Determine if current distribution is a ClearLinunx distribution
+# is_clearlinux
+function is_clearlinux {
+    if [[ -z "$os_VENDOR" ]]; then
+        GetOSVersion
+    fi
+
+    [ "$os_CODENAME" = "clearlinux" ]
 }
 
 # Determine if current distribution is an Oracle distribution
@@ -1028,6 +1049,8 @@ function _get_package_dir {
         pkg_dir=$base_dir/rpms
     elif is_suse; then
         pkg_dir=$base_dir/rpms-suse
+    elif is_clearlinux; then
+        pkg_dir=$base_dir/rpms-clear
     else
         exit_distro_not_supported "list of packages"
     fi
@@ -1271,6 +1294,8 @@ function real_install_package {
         yum_install "$@"
     elif is_suse; then
         zypper_install "$@"
+    elif is_clearlinux; then
+        swupd_install "$@"
     else
         exit_distro_not_supported "installing packages"
     fi
@@ -1303,6 +1328,18 @@ function is_package_installed {
     else
         exit_distro_not_supported "finding if a package is installed"
     fi
+}
+
+# swupd wrapper to set arguments correctly
+# Uses globals ``OFFLINE``, ``*_proxy``
+# swupd_install package [package ...]
+function swupd_install {
+    [[ "$OFFLINE" = "True" ]] && return
+    local sudo="sudo"
+    [[ "$(id -u)" = "0" ]] && sudo="env"
+    $sudo http_proxy="${http_proxy:-}" https_proxy="${https_proxy:-}" \
+        no_proxy="${no_proxy:-}" \
+        swupd bundle-add "$@"
 }
 
 # Distro-agnostic package uninstaller
