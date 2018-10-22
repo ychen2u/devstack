@@ -439,7 +439,7 @@ function is_clearlinux {
         GetOSVersion
     fi
 
-    [ "$os_CODENAME" = "clearlinux" ]
+    [[ "$os_VENDOR" = "Clear_Linux_OS" ]]
 }
 
 # Determine if current distribution is an Oracle distribution
