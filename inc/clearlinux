@@ -41,7 +41,7 @@ function lsb_release {
             echo "clearlinux"
             ;;
         -i)
-            echo $(source $os_RELEASE_FILE; echo $NAME)
+            echo $(source $os_RELEASE_FILE; echo $NAME | tr ' ' '_')
             ;;
         -r)
             echo $(source $os_RELEASE_FILE; echo $VERSION_ID)
