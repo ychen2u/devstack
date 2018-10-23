@@ -741,11 +741,12 @@ function enable_kernel_bridge_firewall {
 #
 # This sets a system-side override in system.conf. A per-service
 # override would be /etc/systemd/system/${service}.service/override.conf
+# set_systemd_override <key> <value> [<config-file>]
 function set_systemd_override {
     local key="$1"
     local value="$2"
+    local sysconf="${3:-/etc/systemd/system.conf}"
 
-    local sysconf="/etc/systemd/system.conf"
     iniset -sudo "${sysconf}" "Manager" "$key" "$value"
     echo "Set systemd system override for ${key}=${value}"
 
