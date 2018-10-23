@@ -235,7 +235,7 @@ def main():
     opts = get_options()
     fname = filename(opts.dir, opts.name)
     print("World dumping... see %s for details" % fname)
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
     with open(fname, 'w') as f:
         os.dup2(f.fileno(), sys.stdout.fileno())
         disk_space()
