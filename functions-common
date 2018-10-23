@@ -1357,6 +1357,8 @@ function uninstall_package {
         sudo ${YUM:-yum} remove -y "$@" ||:
     elif is_suse; then
         sudo zypper remove -y "$@" ||:
+    elif is_clearlinux; then
+	echo "don't uninstall packages on clearlinux now"
     else
         exit_distro_not_supported "uninstalling packages"
     fi

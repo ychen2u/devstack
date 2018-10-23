@@ -359,7 +359,11 @@ function install_neutron_new {
 
     # L3 service requires radvd
     if is_service_enabled neutron-l3; then
-        install_package radvd
+	if is_clearlinux; then
+	    install_package openstack-common
+	else
+    	    install_package radvd
+	fi
     fi
 
     if is_service_enabled neutron-agent neutron-dhcp neutron-l3; then

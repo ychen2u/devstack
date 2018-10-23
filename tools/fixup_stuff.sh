@@ -202,5 +202,7 @@ fi
 # on python-virtualenv), first install the distro python-virtualenv
 # to satisfy any dependencies then use pip to overwrite it.
 
-install_package python-virtualenv
+if !is_clearlinux; then
+    install_package python-virtualenv
+fi
 pip_install -U --force-reinstall virtualenv

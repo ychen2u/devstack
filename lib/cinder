@@ -442,6 +442,10 @@ function init_cinder {
 function install_cinder {
     git_clone $CINDER_REPO $CINDER_DIR $CINDER_BRANCH
     setup_develop $CINDER_DIR
+    if is_clearlinux; then
+	return
+    fi
+
     if [[ "$CINDER_ISCSI_HELPER" == "tgtadm" ]]; then
         install_package tgt
     elif [[ "$CINDER_ISCI_HELPER" == "lioadm" ]]; then
