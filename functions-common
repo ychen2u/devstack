@@ -1569,7 +1569,7 @@ function _run_under_systemd {
     fi
 
     $SYSTEMCTL enable $systemd_service
-    $SYSTEMCTL start $systemd_service
+    $SYSTEMCTL restart $systemd_service
 }
 
 # Helper to remove the ``*.failure`` files under ``$SERVICE_DIR/$SCREEN_NAME``.
