@@ -80,6 +80,8 @@ function install_libvirt {
         install_package libvirt libvirt-devel
         pip_uninstall libvirt-python
         pip_install_gr libvirt-python
+    elif is_clearlinux; then
+	install_package openstack-common
     fi
 
     if [[ $DEBUG_LIBVIRT_COREDUMPS == True ]]; then
@@ -118,6 +120,15 @@ polkit.addRule(function(action, subject) {
 });
 EOF
         unset rules_dir
+    fi
+
+    # clearlinux
+    if is_clearlinux; then
+	# Do not use polkit auth for clearlinux
+        if ! sudo grep -q "^auth_unix_ro=\"none\"" /etc/libvirt/libvirtd.conf; then
+	    echo "auth_unix_ro = \"none\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+	    echo "auth_unix_rw = \"none\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+	fi
     fi
 
     # The user that nova runs as needs to be member of **libvirtd** group otherwise
