@@ -49,7 +49,7 @@ function get_python_exec_prefix {
     fi
     $xtrace
 
-    if is_fedora || is_suse; then
+    if is_fedora || is_suse || is_clearlinux; then
         echo "/usr/bin"
     else
         echo "/usr/local/bin"
