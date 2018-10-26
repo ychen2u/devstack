@@ -1339,7 +1339,13 @@ function swupd_install {
     [[ "$(id -u)" = "0" ]] && sudo="env"
     $sudo http_proxy="${http_proxy:-}" https_proxy="${https_proxy:-}" \
         no_proxy="${no_proxy:-}" \
-        swupd bundle-add "$@"
+	swupd bundle-add "$@"
+    ret=$?
+    if [[ "$ret" = "0" ]] || [[ "$ret" = "18" ]]; then
+        return 0
+    else
+        return $ret
+    fi
 }
 
 # Distro-agnostic package uninstaller
