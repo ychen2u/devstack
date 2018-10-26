@@ -1,0 +1,69 @@
+[[local|localrc]]
+
+# passwords
+ADMIN_PASSWORD=nomoresecret
+DATABASE_PASSWORD=123
+RABBIT_PASSWORD=123
+SERVICE_PASSWORD=123
+
+# python3 disabled
+USE_PYTHON3=False
+ENABLED_PYTHON3_PACKAGES=""
+
+# git base
+GIT_BASE=https://git.openstack.org
+STX_BASE=https://github.com/starlingx-staging
+## install the following libs from git
+LIBS_FROM_GIT=python-cinderclient,python-glanceclient,python-neutronclient,python-novaclient,python-openstacksdk,neutron-lib
+## staging repos for major services
+CINDER_REPO=${STX_BASE}/stx-cinder.git
+CINDER_BRANCH=master
+GLANCE_REPO=${STX_BASE}/stx-glance.git
+GLANCE_BRANCH=master
+HORIZON_REPO=${STX_BASE}/stx-horizon.git
+HORIZON_BRANCH=master
+KEYSTONE_REPO=${STX_BASE}/stx-keystone.git
+KEYSTONE_BRANCH=master
+NEUTRON_REPO=${STX_BASE}/stx-neutron.git
+NEUTRON_BRANCH=master
+NOVA_REPO=${STX_BASE}/stx-nova.git
+NOVA_BRANCH=master
+# staging repos for python clients
+CINDERCLIENT_REPO=${STX_BASE}/stx-python-cinderclient.git
+CINDERCLIENT_BRANCH=master
+GLANCECLIENT_REPO=${STX_BASE}/stx-python-glanceclient.git
+GLANCECLIENT_BRANCH=master
+NEUTRONCLIENT_REPO=${STX_BASE}/stx-python-neutronclient.git
+NEUTRONCLIENT_BRANCH=master
+NOVACLIENT_REPO=${STX_BASE}/stx-python-novaclient.git
+NOVACLIENT_BRANCH=master
+OPENSTACKSDK_REPO=${STX_BASE}/stx-openstacksdk.git
+OPENSTACKSDK_BRANCH=master
+NEUTRON_LIB_REPO=${STX_BASE}/stx-neutron-lib.git
+NEUTRON_LIB_BRANCH=master
+
+
+# single conductor
+CELLSV2_SETUP=singleconductor
+
+# enable services
+ENABLED_SERVICES=key,postgresql,n-api,n-cpu,n-cond,n-sch,n-cauth,n-api-meta
+enable_service rabbit
+enable_service placement-api,placement-client
+enable_service g-api,g-reg
+enable_service q-svc,q-dhcp,q-meta,q-agt,q-l3,q-trunk
+enable_service c-api,c-sch
+# enable plugins
+enable_plugin networking-sfc https://github.com/starlingx-staging/stx-networking-sfc.git
+
+# Logging
+LOGDIR=/opt/stack/logs
+LOGFILE=/opt/stack/logs/stack.sh.log
+LOGDAYS=2
+
+# Swift
+SWIFT_HASH=66a3d6b56c1f479c8b4e70ab5c2000f5
+SWIFT_REPLICAS=1
+SWIFT_DATA_DIR=$DEST/data
+
+

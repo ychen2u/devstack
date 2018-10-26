@@ -1,0 +1,39 @@
+[[local|localrc]]
+
+# passwords
+ADMIN_PASSWORD=nomoresecret
+DATABASE_PASSWORD=123
+RABBIT_PASSWORD=123
+SERVICE_PASSWORD=123
+
+# git base
+GIT_BASE=https://git.openstack.org
+
+# python3 disabled
+USE_PYTHON3=False
+ENABLED_PYTHON3_PACKAGES=""
+
+# single conductor
+CELLSV2_SETUP=singleconductor
+
+# enable vanilla services
+ENABLED_SERVICES=key,postgresql,n-api,n-cpu,n-cond,n-sch,n-cauth,n-api-meta
+enable_service rabbit
+enable_service placement-api,placement-client
+enable_service g-api,g-reg
+enable_service q-svc,q-dhcp,q-meta,q-agt,q-l3
+enable_service c-api,c-sch
+enable_service horizon
+
+
+# Logging
+LOGDIR=/opt/stack/logs
+LOGFILE=/opt/stack/logs/stack.sh.log
+LOGDAYS=2
+
+# Swift
+SWIFT_HASH=66a3d6b56c1f479c8b4e70ab5c2000f5
+SWIFT_REPLICAS=1
+SWIFT_DATA_DIR=$DEST/data
+
+
