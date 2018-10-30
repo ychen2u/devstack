@@ -43,6 +43,10 @@ elif is_suse; then
     APACHE_NAME=apache2
     APACHE_CONF_DIR=${APACHE_CONF_DIR:-/etc/$APACHE_NAME/vhosts.d}
     APACHE_SETTINGS_DIR=${APACHE_SETTINGS_DIR:-/etc/$APACHE_NAME/conf.d}
+elif is_clearlinux; then
+    APACHE_NAME=httpd
+    APACHE_CONF_DIR=${APACHE_CONF_DIR:-/usr/share/defaults/$APACHE_NAME/conf.d}
+    APACHE_SETTINGS_DIR=${APACHE_SETTINGS_DIR:-/usr/share/defaults/$APACHE_NAME/conf.d}
 fi
 APACHE_LOG_DIR="/var/log/${APACHE_NAME}"
 
@@ -68,6 +72,8 @@ function enable_apache_mod {
     elif is_fedora; then
         # pass
         true
+    elif is_clearlinux; then
+	true
     else
         exit_distro_not_supported "apache enable mod"
     fi
@@ -78,7 +84,7 @@ function enable_apache_mod {
 # check for that and do it differently for different platforms.
 function install_apache_uwsgi {
     local apxs="apxs2"
-    if is_fedora; then
+    if is_fedora || is_clearlinux; then
         apxs="apxs"
     fi
 
@@ -111,6 +117,13 @@ function install_apache_uwsgi {
         # redhat is missing a nice way to turn on/off modules
         echo "LoadModule proxy_uwsgi_module modules/mod_proxy_uwsgi.so" \
             | sudo tee /etc/httpd/conf.modules.d/02-proxy-uwsgi.conf
+    elif is_clearlinux; then
+	echo "LoadModule proxy_uwsgi_module lib/httpd/modules/mod_proxy_uwsgi.so" \
+            | sudo tee /usr/share/defaults/httpd/conf.modules.d/02-proxy-uwsgi.conf
+        echo "LoadModule proxy_module lib/httpd/modules/mod_proxy.so" \
+            | sudo tee -a /usr/share/defaults/httpd/conf.modules.d/02-proxy-uwsgi.conf
+        echo "LoadModule proxy_http_module lib/httpd/modules/mod_proxy_http.so" \
+            | sudo tee -a /usr/share/defaults/httpd/conf.modules.d/02-proxy-uwsgi.conf
     fi
     restart_apache_server
 }
@@ -138,6 +151,8 @@ function install_apache_wsgi {
         sudo sed -i '/mod_mpm_worker.so/s/^#//g' /etc/httpd/conf.modules.d/00-mpm.conf
     elif is_suse; then
         install_package apache2 apache2-mod_wsgi
+    elif is_clearlinux; then
+	install_package web-server-basic
     else
         exit_distro_not_supported "apache wsgi installation"
     fi
@@ -168,7 +183,7 @@ function apache_site_config_for {
     if is_ubuntu; then
         # Ubuntu 14.04 - Apache 2.4
         echo $APACHE_CONF_DIR/${site}.conf
-    elif is_fedora || is_suse; then
+    elif is_fedora || is_suse || is_clearlinux; then
         # fedora conf.d is only imported if it ends with .conf so this is approx the same
         local enabled_site_file="$APACHE_CONF_DIR/${site}.conf"
         if [ -f $enabled_site_file ]; then
@@ -186,7 +201,7 @@ function enable_apache_site {
     enable_apache_mod version
     if is_ubuntu; then
         sudo a2ensite ${site}
-    elif is_fedora || is_suse; then
+    elif is_fedora || is_suse || is_clearlinux; then
         local enabled_site_file="$APACHE_CONF_DIR/${site}.conf"
         # Do nothing if site already enabled or no site config exists
         if [[ -f ${enabled_site_file}.disabled ]] && [[ ! -f ${enabled_site_file} ]]; then
@@ -200,7 +215,7 @@ function disable_apache_site {
     local site=$@
     if is_ubuntu; then
         sudo a2dissite ${site} || true
-    elif is_fedora || is_suse; then
+    elif is_fedora || is_suse || is_clearlinux; then
         local enabled_site_file="$APACHE_CONF_DIR/${site}.conf"
         # Do nothing if no site config exists
         if [[ -f ${enabled_site_file} ]]; then
