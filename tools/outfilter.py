@@ -50,7 +50,7 @@ def main():
     opts = get_options()
     outfile = None
     if opts.outfile:
-        outfile = open(opts.outfile, 'a', 0)
+        outfile = open(opts.outfile, 'a')
 
     # Otherwise fileinput reprocess args as files
     sys.argv = []
