@@ -82,6 +82,8 @@ function install_libvirt {
         pip_install_gr libvirt-python
     elif is_clearlinux; then
 	install_package openstack-common
+        pip_uninstall libvirt-python
+        pip_install_gr libvirt-python
     fi
 
     if [[ $DEBUG_LIBVIRT_COREDUMPS == True ]]; then
