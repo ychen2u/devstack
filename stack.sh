@@ -276,6 +276,9 @@ echo "$STACK_USER ALL=(root) NOPASSWD:ALL" >$TEMPFILE
 # see them by forcing ``PATH``
 echo "Defaults:$STACK_USER secure_path=/sbin:/usr/sbin:/usr/bin:/bin:/usr/local/sbin:/usr/local/bin" >> $TEMPFILE
 echo "Defaults:$STACK_USER !requiretty" >> $TEMPFILE
+if is_clearlinux; then
+    echo "Defaults:$STACK_USER env_keep += \"FORCE_LEGACY_PYTHON\"" >> $TEMPFILE
+fi
 chmod 0440 $TEMPFILE
 sudo chown root:root $TEMPFILE
 sudo mv $TEMPFILE /etc/sudoers.d/50_stack_sh
