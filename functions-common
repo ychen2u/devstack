@@ -1497,6 +1497,9 @@ function write_user_unit_file {
     if [[ -n "$group" ]]; then
         iniset -sudo $unitfile "Service" "Group" "$group"
     fi
+    if is_clearlinux; then
+        iniset -sudo $unitfile "Service" "Environment" "FORCE_LEGACY_PYTHON=true"
+    fi
     iniset -sudo $unitfile "Install" "WantedBy" "multi-user.target"
 
     # changes to existing units sometimes need a refresh
