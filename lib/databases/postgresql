@@ -71,6 +71,13 @@ function configure_database_postgresql {
         pg_conf=/var/lib/pgsql/data/postgresql.conf
         # initdb is called when postgresql is first started
         sudo [ -e $pg_hba ] || start_service postgresql
+    elif is_clearlinux; then
+        # clearlinux code
+        pg_hba=/var/lib/pgsql/data/pg_hba.conf
+        pg_conf=/var/lib/pgsql/data/postgresql.conf
+        if ! sudo [ -e $pg_hba ]; then
+            start_service postgresql-install
+        fi
     else
         exit_distro_not_supported "postgresql configuration"
     fi
@@ -78,18 +85,28 @@ function configure_database_postgresql {
     sudo sed -i "/listen_addresses/s/.*/listen_addresses = '*'/" $pg_conf
     # Set max_connections
     sudo sed -i "/max_connections/s/.*/max_connections = $MAX_DB_CONNECTIONS/" $pg_conf
+
+    if is_clearlinux; then
+        # Do ident auth for Unix domain socket connections, IPv4 clients and IPv6 clients.
+        sudo sed -i "s/reject/ident/" $pg_hba
+    fi
     # Do password auth from all IPv4 clients
     sudo sed -i "/^host/s/all\s\+127.0.0.1\/32\s\+ident/$DATABASE_USER\t0.0.0.0\/0\tpassword/" $pg_hba
     # Do password auth for all IPv6 clients
     sudo sed -i "/^host/s/all\s\+::1\/128\s\+ident/$DATABASE_USER\t::0\/0\tpassword/" $pg_hba
+
     restart_service postgresql
 
     # Create the role if it's not here or else alter it.
-    check_role=$(sudo -u root sudo -u postgres -i psql -t -c "SELECT 'HERE' from pg_roles where rolname='$DATABASE_USER'")
+    run_cmd_with_postgres="sudo -u root sudo -u postgres -i"
+    if is_clearlinux;then
+        run_cmd_with_postgres="sudo -u  postgres"
+    fi
+    check_role=$( $run_cmd_with_postgres psql -t -c "SELECT 'HERE' from pg_roles where rolname='$DATABASE_USER'")
     if [[ ${check_role} == *HERE ]];then
-        sudo -u root sudo -u postgres -i psql -c "ALTER ROLE $DATABASE_USER WITH SUPERUSER LOGIN PASSWORD '$DATABASE_PASSWORD'"
+        $run_cmd_with_postgres psql -c "ALTER ROLE $DATABASE_USER WITH SUPERUSER LOGIN PASSWORD '$DATABASE_PASSWORD'"
     else
-        sudo -u root sudo -u postgres -i psql -c "CREATE ROLE $DATABASE_USER WITH SUPERUSER LOGIN PASSWORD '$DATABASE_PASSWORD'"
+        $run_cmd_with_postgres psql -c "CREATE ROLE $DATABASE_USER WITH SUPERUSER LOGIN PASSWORD '$DATABASE_PASSWORD'"
     fi
 }
 
