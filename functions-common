@@ -399,7 +399,7 @@ function GetDistro {
         DISTRO="xs${os_RELEASE%.*}"
     elif [[ "$os_VENDOR" =~ (kvmibm) ]]; then
         DISTRO="${os_VENDOR}${os_RELEASE::1}"
-    elif [[ "$os_VENDOR" =~ (Clear_Linux_OS) ]]; then
+    elif [[ "$os_VENDOR" =~ (Clear_Linux_OS) ]] || [[ "$os_VENDOR" =~ (Clear_Linux_Mix) ]]; then
         DISTRO="${os_CODENAME}"
     else
         # We can't make a good choice here.  Setting a sensible DISTRO
@@ -439,7 +439,7 @@ function is_clearlinux {
         GetOSVersion
     fi
 
-    [[ "$os_VENDOR" = "Clear_Linux_OS" ]]
+    [[ "$os_VENDOR" = "Clear_Linux_OS" ]] || [[ "$os_VENDOR" = "Clear_Linux_Mix" ]]
 }
 
 # Determine if current distribution is an Oracle distribution
